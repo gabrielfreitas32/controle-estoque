@@ -1,0 +1,13 @@
+# Dados reais e backups (não subir para o GitHub)
+backup-estoque-*.json
+estoque-*.csv
+
+# Segredos e configurações locais
+.env
+.env.*
+
+# Dependências e sistema
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/

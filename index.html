@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Controle de Estoque</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><h1>📦 Controle de Estoque</h1>
+<nav id="nav"><button data-t="bipar">Bipar</button><button data-t="estoque">Estoque</button><button data-t="cadastro">Cadastro</button><button data-t="hist">Histórico</button><button data-t="inv">Inventário</button></nav></header>
+<main>
+<div id="warn" class="fb er" hidden>Armazenamento do navegador indisponível: os dados ficam só nesta sessão. Exporte um backup na aba Cadastro.</div>
+
+<section id="t-bipar">
+<div class="seg"><button class="in" id="mIn">⬇ Entrada</button><button class="out" id="mOut">⬆ Saída</button></div>
+<div class="card">
+<label>Bipe o EAN (ou digite o código do kit) e tecle Enter</label>
+<input id="scan" autocomplete="off" autocapitalize="off">
+<div class="row"><div><label>Quantidade</label><input id="qty" type="number" min="1" value="1"></div>
+<div><label>Referência (pedido / conta) — opcional</label><input id="ref" autocomplete="off"></div></div>
+<div id="fb" class="fb"></div></div>
+<h3>Últimas movimentações</h3><div class="tw"><table id="recent"></table></div>
+</section>
+
+<section id="t-estoque" hidden>
+<div class="chips" id="sum"></div>
+<div class="row"><div><input id="q" placeholder="Buscar por nome, EAN, SKU ou local"></div>
+<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="low" style="width:auto"><span>Só estoque baixo/zerado</span></div></div>
+<h3>Produtos <span class="note">(clique para editar)</span></h3><div class="tw"><table id="stock"></table></div>
+<h3>Kits (calculado pelos componentes)</h3><div class="tw"><table id="kstock"></table></div>
+</section>
+
+<section id="t-cadastro" hidden>
+<div class="card"><h3 style="margin-top:0" id="pTitle">Novo produto</h3>
+<div class="row"><div><label>EAN *</label><input id="pEan" autocomplete="off"></div><div><label>Nome *</label><input id="pName"></div>
+<div><label>SKU interno</label><input id="pSku"></div><div><label>Localização (ex.: A-01-2)</label><input id="pLoc"></div>
+<div><label>Estoque mínimo</label><input id="pMin" type="number" min="0" value="0"></div><div><label>Saldo atual</label><input id="pQty" type="number" min="0" value="0"></div></div>
+<button class="b" id="pSave">Salvar produto</button><button class="b g" id="pClear">Limpar</button><button class="b r" id="pDel" hidden>Excluir</button>
+<div id="pFb" class="fb" hidden></div></div>
+
+<div class="card"><h3 style="margin-top:0">Novo kit (montado só na hora do envio)</h3>
+<div class="row"><div><label>Código do kit *</label><input id="kCode" autocomplete="off"></div><div><label>Nome *</label><input id="kName"></div></div>
+<div id="kItems"></div>
+<button class="b g" id="kAdd">+ Componente</button><button class="b" id="kSave">Salvar kit</button>
+<div id="kFb" class="fb" hidden></div></div>
+<h3>Kits cadastrados</h3><div class="tw"><table id="kList"></table></div>
+
+<h3>Backup</h3><div class="card">
+<p class="note" style="margin-top:0">Os dados ficam salvos neste navegador. Faça backup com frequência e antes de limpar o navegador.</p>
+<button class="b" id="bExp">Exportar backup (.json)</button><button class="b g" id="bCsv">Exportar estoque (.csv)</button>
+<label>Restaurar: cole aqui o conteúdo de um backup</label><textarea id="bTxt"></textarea>
+<button class="b g" id="bImp">Restaurar backup</button><div id="bFb" class="fb" hidden></div></div>
+</section>
+
+<section id="t-hist" hidden>
+<input id="hq" placeholder="Filtrar por produto, EAN, referência ou tipo (entrada, saída, ajuste)"><br><br>
+<div class="tw"><table id="hist"></table></div>
+</section>
+
+<section id="t-inv" hidden>
+<div class="card"><p class="note" style="margin-top:0">Bipe os produtos de uma prateleira (1 bipe = 1 unidade). Ao aplicar, o saldo dos itens contados é ajustado para a contagem.</p>
+<label>Bipe o EAN</label><input id="cscan" autocomplete="off">
+<div id="cfb" class="fb" hidden></div></div>
+<div class="tw"><table id="ctab"></table></div>
+<button class="b" id="cApply">Aplicar ajustes</button><button class="b g" id="cClear">Limpar contagem</button>
+</section>
+</main>
+
+<script src="js/utils.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/bipar.js"></script>
+<script src="js/estoque.js"></script>
+<script src="js/cadastro.js"></script>
+<script src="js/backup.js"></script>
+<script src="js/historico.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
