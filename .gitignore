@@ -1,13 +1,26 @@
-# Dados reais e backups (não subir para o GitHub)
+# Dados reais e backups (nunca subir para o GitHub)
+backend/data/
+*.db
+*.db-wal
+*.db-shm
 backup-estoque-*.json
 estoque-*.csv
 
 # Segredos e configurações locais
 .env
 .env.*
+!.env.example
 
 # Dependências e sistema
 node_modules/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Segurança: chaves, certificados e segredos nunca vão para o GitHub
+*.key
+*.pem
+*.crt
+jwt.secret
+certs/
+backups/

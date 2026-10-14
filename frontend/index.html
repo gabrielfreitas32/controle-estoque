@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#0b5a63">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Controle de Estoque</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Tela de login -->
+<section id="login" class="login" hidden>
+  <div class="marca">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 9v14M11.5 9v14M15 9v14M19.5 9v14M23 9v14" stroke="var(--logo-bar)" stroke-width="1.8" stroke-linecap="round"/><path d="M8 16h16" stroke="var(--logo-line)" stroke-width="2" stroke-linecap="round"/></svg>
+    <h1>Controle de Estoque</h1>
+    <p>Bipe a entrada e a saída, acompanhe o saldo e o valor do estoque e feche o inventário sem planilha.</p>
+  </div>
+  <form id="lForm" class="painel">
+    <h2>Entrar</h2>
+    <label for="lUser">Usuário</label>
+    <input id="lUser" autocomplete="username" autocapitalize="off" required>
+    <label for="lSenha">Senha</label>
+    <div class="pw"><input id="lSenha" type="password" autocomplete="current-password" required><button type="button" class="eye" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button></div>
+    <button class="b cheio" type="submit">Entrar</button>
+    <div id="lFb" class="fb er" hidden></div>
+  </form>
+</section>
+
+<!-- Aplicação (visível após o login) -->
+<div id="app" hidden>
+<header>
+  <div class="topo">
+    <div class="id"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 9v14M11.5 9v14M15 9v14M19.5 9v14M23 9v14" stroke="var(--logo-bar)" stroke-width="1.8" stroke-linecap="round"/><path d="M8 16h16" stroke="var(--logo-line)" stroke-width="2" stroke-linecap="round"/></svg><h1>Controle de Estoque</h1></div>
+    <div class="quem">
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <span class="nome"><b id="quemNome"></b><small id="quemPerfil"></small></span>
+      <button class="b g mini" id="bSenha" type="button">Alterar senha</button>
+      <button class="b g mini" id="sair" type="button">Sair</button>
+    </div>
+  </div>
+  <nav id="nav">
+    <button data-t="bipar">Bipar</button>
+    <button data-t="estoque">Estoque</button>
+    <button data-t="ranking">Ranking</button>
+    <button data-t="cadastro" data-admin>Cadastro</button>
+    <button data-t="hist">Histórico</button>
+    <button data-t="inv" data-admin>Inventário</button>
+    <button data-t="usuarios" data-admin>Usuários</button>
+  </nav>
+</header>
+<main>
+
+<section id="t-bipar">
+  <div class="seg">
+    <button class="in" id="mIn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v11m0 0l-4-4m4 4l4-4M4 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Entrada</button>
+    <button class="out" id="mOut"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V3m0 0L6 7m4-4l4 4M4 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Saída</button>
+  </div>
+  <div class="card">
+    <div id="leitor" class="leitor off" role="button" tabindex="-1">○ Leitor inativo: clique aqui</div>
+    <label>Bipe o EAN (ou digite o código do kit) e tecle Enter</label>
+    <div class="linha-scan">
+      <input id="scan" autocomplete="off" autocapitalize="off" inputmode="numeric">
+      <button class="b g" id="bCamera" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Câmera</button>
+    </div>
+    <div id="lido" class="note" style="margin-top:4px">Nenhum código lido ainda.</div>
+    <div class="row">
+      <div><label>Quantidade</label><input id="qty" type="number" min="1" value="1"></div>
+      <div><label>Referência (pedido / conta), opcional</label><input id="ref" autocomplete="off"></div>
+    </div>
+    <div id="fb" class="fb"></div>
+    <div id="tent" class="tent"></div>
+  </div>
+  <h3>Últimas movimentações</h3>
+  <div class="tw"><table id="recent"></table></div>
+</section>
+
+<section id="t-estoque" hidden>
+  <div class="valor" id="valor" data-admin hidden></div>
+  <div class="chips" id="sum"></div>
+  <div class="row">
+    <div><input id="q" placeholder="Buscar por nome, EAN, SKU ou local"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="low" style="width:auto"><span>Só estoque baixo/zerado</span>
+    </div>
+  </div>
+  <h3>Produtos <span class="note" data-admin>(clique para editar)</span></h3>
+  <div class="tw"><table id="stock"></table></div>
+  <h3>Kits (calculado pelos componentes)</h3>
+  <div class="tw"><table id="kstock"></table></div>
+  <button class="b g" id="bCsv">Exportar estoque (.csv)</button>
+</section>
+
+<section id="t-cadastro" hidden>
+  <div class="card">
+    <h3 style="margin-top:0" id="pTitle">Novo produto</h3>
+    <div class="row">
+      <div><label>EAN *</label><input id="pEan" autocomplete="off"></div>
+      <div><label>Nome *</label><input id="pName"></div>
+      <div><label>SKU interno</label><input id="pSku"></div>
+      <div><label>Localização (ex.: A-01-2)</label><input id="pLoc"></div>
+      <div><label>Estoque mínimo</label><input id="pMin" type="number" min="0" value="0"></div>
+      <div><label>Saldo atual</label><input id="pQty" type="number" min="0" value="0"></div>
+      <div><label>Preço de custo (R$)</label><input id="pCost" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <p class="note" style="margin:0 0 6px">O preço de custo é usado para calcular o valor total do estoque e só aparece para administradores.</p>
+    <button class="b" id="pSave">Salvar produto</button>
+    <button class="b g" id="pClear">Limpar</button>
+    <button class="b r" id="pDel" hidden>Excluir</button>
+    <div id="pFb" class="fb" hidden></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Novo kit (montado só na hora do envio)</h3>
+    <div class="row">
+      <div><label>Código do kit *</label><input id="kCode" autocomplete="off"></div>
+      <div><label>Nome *</label><input id="kName"></div>
+    </div>
+    <div id="kItems"></div>
+    <button class="b g" id="kAdd">+ Componente</button>
+    <button class="b" id="kSave">Salvar kit</button>
+    <div id="kFb" class="fb" hidden></div>
+  </div>
+  <h3>Kits cadastrados</h3>
+  <div class="tw"><table id="kList"></table></div>
+</section>
+
+<section id="t-ranking" hidden>
+  <div class="periodos" id="rPer">
+    <button data-p="hoje">Hoje</button>
+    <button data-p="semana">Esta semana</button>
+    <button data-p="mes">Este mês</button>
+  </div>
+  <div id="rTit" class="note" style="margin:-4px 0 12px"></div>
+  <div class="cards3" id="rCards"></div>
+  <div id="rDiaBox" hidden>
+    <h3>Saídas por dia</h3>
+    <div class="dias" id="rDias"></div>
+  </div>
+  <h3>Produtos mais vendidos</h3>
+  <div class="tw"><table id="rTab"></table></div>
+  <p class="note">Cada produto bipado como Saída entra no ranking, descontando os estornos. Saída de kit conta cada produto que saiu.</p>
+</section>
+
+<section id="t-hist" hidden>
+  <input id="hq" placeholder="Filtrar por produto, EAN, referência, usuário ou tipo (entrada, saída, ajuste, estorno)">
+  <div id="hFb" class="fb" hidden></div><br>
+  <div class="tw"><table id="hist"></table></div>
+</section>
+
+<section id="t-inv" hidden>
+  <div class="card">
+    <p class="note" style="margin-top:0">Bipe os produtos de uma prateleira (1 bipe = 1 unidade). Ao aplicar, o saldo dos itens contados é ajustado para a contagem.</p>
+    <label>Bipe o EAN</label>
+    <input id="cscan" autocomplete="off">
+    <div id="cfb" class="fb" hidden></div>
+  </div>
+  <div class="tw"><table id="ctab"></table></div>
+  <button class="b" id="cApply">Aplicar ajustes</button>
+  <button class="b g" id="cClear">Limpar contagem</button>
+</section>
+
+<section id="t-usuarios" hidden>
+  <div class="card">
+    <h3 style="margin-top:0">Novo usuário</h3>
+    <div class="row">
+      <div><label for="uNome">Nome de usuário</label><input id="uNome" autocomplete="off" autocapitalize="off"></div>
+      <div><label for="uSenha">Senha (mínimo 8 caracteres)</label><div class="pw"><input id="uSenha" type="password" autocomplete="new-password" ><button type="button" class="eye" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button></div></div>
+      <div><label for="uPerfil">Perfil</label>
+        <select id="uPerfil"><option value="operador">Operador: bipa e consulta</option><option value="admin">Administrador: acesso total</option></select></div>
+    </div>
+    <button class="b" id="uSave" type="button">Criar usuário</button>
+    <div id="uFb" class="fb" hidden></div>
+  </div>
+  <h3>Usuários</h3>
+  <div class="tw"><table id="uList"></table></div>
+</section>
+
+</main>
+</div>
+
+
+<dialog id="dSenha">
+  <form method="dialog" id="fSenha">
+    <h2 id="dTitulo">Alterar minha senha</h2>
+    <div id="dAtualBox"><label for="sAtual">Senha atual</label><div class="pw"><input id="sAtual" type="password" autocomplete="current-password" ><button type="button" class="eye" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button></div></div>
+    <label for="sNova">Nova senha (mínimo 8 caracteres)</label><div class="pw"><input id="sNova" type="password" autocomplete="new-password" ><button type="button" class="eye" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button></div>
+    <label for="sConf">Repita a nova senha</label><div class="pw"><input id="sConf" type="password" autocomplete="new-password" ><button type="button" class="eye" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button></div>
+    <div id="sFb" class="fb er" hidden></div>
+    <div class="acoes">
+      <button class="b" id="sSalvar" type="submit">Salvar senha</button>
+      <button class="b g" id="sCancelar" type="button">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dCamera">
+  <h2>Ler com a câmera</h2>
+  <div class="camera">
+    <video id="cVideo" playsinline muted></video>
+    <div class="mira"></div>
+  </div>
+  <div id="cMsg" class="note" style="margin-top:8px">Abrindo a câmera…</div>
+  <div class="acoes"><button class="b g" id="cFechar" type="button">Fechar câmera</button></div>
+</dialog>
+
+<dialog id="dEstorno">
+  <form method="dialog" id="fEstorno">
+    <h2>Estornar lançamento</h2>
+    <p id="eResumo" class="note" style="margin:0 0 4px"></p>
+    <label for="eMotivo">Motivo do estorno</label>
+    <input id="eMotivo" maxlength="200" autocomplete="off" placeholder="Ex.: bipei o produto errado">
+    <div id="eFb" class="fb er" hidden></div>
+    <div class="acoes">
+      <button class="b" id="eConfirmar" type="submit">Confirmar estorno</button>
+      <button class="b g" id="eCancelar" type="button">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/dados.js"></script>
+<script src="js/ean.js"></script>
+<script src="js/bipar.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/estoque.js"></script>
+<script src="js/cadastro.js"></script>
+<script src="js/exportar.js"></script>
+<script src="js/historico.js"></script>
+<script src="js/ranking.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/usuarios.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

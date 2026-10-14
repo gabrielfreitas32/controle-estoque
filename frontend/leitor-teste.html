@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste do leitor</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:20px auto;padding:0 16px;color:#1b2430}
+input{font-size:24px;padding:12px;width:100%;box-sizing:border-box;border:3px solid #2563eb;border-radius:8px}
+.cx{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.cx div{background:#eef2f7;border-radius:8px;padding:10px 16px;font-size:18px}
+table{border-collapse:collapse;width:100%;margin-top:10px}td,th{border-bottom:1px solid #d5dbe3;padding:6px 8px;text-align:left;font-size:15px}
+.ok{color:#15803d;font-weight:700}.ruim{color:#b91c1c;font-weight:700}button{font-size:16px;padding:8px 14px}
+code{background:#eef2f7;padding:1px 5px;border-radius:4px}
+</style></head><body>
+<h1>Teste do leitor de código de barras</h1>
+<p>Clique no campo azul e bipe o mesmo produto várias vezes. Esta página não usa o sistema nem o login: ela só mostra o que o leitor envia ao computador.</p>
+<input id="c" autofocus autocomplete="off" placeholder="Bipe aqui">
+<div class="cx"><div>Leituras: <b id="n">0</b></div><div>Corretas (13 dígitos): <b id="ok">0</b></div><div>Com problema: <b id="ruim">0</b></div><button id="z">Zerar</button></div>
+<table><thead><tr><th>#</th><th>Hora</th><th>Código recebido</th><th>Tamanho</th><th>Tempo de digitação</th><th>Situação</th></tr></thead><tbody id="t"></tbody></table>
+<p id="extra"></p>
+<script>
+const c=document.getElementById('c'),t=document.getElementById('t');
+let n=0,ok=0,ruim=0,ini=0,estranhas=new Set();
+c.addEventListener('keydown',e=>{
+  if(!ini)ini=performance.now();
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const v=c.value,ms=Math.round(performance.now()-ini);ini=0;c.value='';
+    n++;const bom=/^\d{13}$/.test(v)||/^\d{8}$/.test(v)||/^\d{12}$/.test(v)||/^\d{14}$/.test(v);bom?ok++:ruim++;
+    let sit=bom?'<span class="ok">OK</span>':'<span class="ruim">Estranho</span>';
+    if(!bom)sit+=' (esperado só números: 8, 12, 13 ou 14 dígitos)';
+    t.insertAdjacentHTML('afterbegin',`<tr><td>${n}</td><td>${new Date().toLocaleTimeString('pt-BR')}</td><td><code>${v.replace(/[<>&]/g,'?')}</code></td><td>${v.length}</td><td>${ms} ms</td><td>${sit}</td></tr>`);
+    document.getElementById('n').textContent=n;document.getElementById('ok').textContent=ok;document.getElementById('ruim').textContent=ruim;
+  } else if(e.key==='Tab'){ e.preventDefault(); estranhas.add('Tab'); document.getElementById('extra').textContent='O leitor enviou a tecla Tab além do código.'; }
+});
+c.addEventListener('blur',()=>setTimeout(()=>c.focus(),0));
+document.getElementById('z').onclick=()=>{t.innerHTML='';n=ok=ruim=0;['n','ok','ruim'].forEach(i=>document.getElementById(i).textContent=0);c.focus();};
+</script></body></html>
